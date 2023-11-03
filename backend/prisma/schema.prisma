@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./reddit.db"
+}
+
+model User {
+  id       Int       @id @default(autoincrement())
+  email    String    @unique
+  username String    @unique
+  password String
+  posts    Post[]
+  comments Comment[]
+  upvotes  Upvote[]
+}
+
+model Post {
+  id         Int      @id @default(autoincrement())
+  title      String
+  content    String
+  dateCreate DateTime
+
+  authorId Int
+  author   User @relation(fields: [authorId], references: [id])
+
+  comments Comment[]
+  upvotes  Upvote[]
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  content    String
+  dateCreate DateTime
+  authorId   Int
+  postId     Int
+  post       Post     @relation(fields: [postId], references: [id])
+  author     User     @relation(fields: [authorId], references: [id])
+}
+
+model Upvote {
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  postId Int
+  Post   Post @relation(fields: [postId], references: [id])
+
+  @@id([userId, postId])
+}
